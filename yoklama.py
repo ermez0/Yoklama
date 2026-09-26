@@ -2,6 +2,7 @@ import customtkinter as ctk
 import json
 import atexit
 from pathlib import Path
+import sys
 
 # Title Configuration
 TITLE_TXT = "Yoklama Tablosu" # Title Text
@@ -48,6 +49,33 @@ BG_COLOR = None
 # Handler for BG_COLOR
 if BG_COLOR is None:
     BG_COLOR = "#242424"
+
+FULLSCREEN = True
+FULLSCREEN_BUGFIX = True
+
+def fullscreen_handler(event=None):
+    global FULLSCREEN
+    FULLSCREEN = not FULLSCREEN
+    if not FULLSCREEN_BUGFIX:
+        root.attributes("-fullscreen",FULLSCREEN)
+        root.update_idletasks()
+    else:
+        if not FULLSCREEN:
+            root.overrideredirect(False)
+            if sys.platform.startswith("win"):
+                root.wm_state("zoomed")
+            else:
+                try:
+                    root.attributes("-zoomed",True)
+                except Exception:
+                    root.geometry("1000x600+100+100")
+            root.focus_force()
+        else:
+            width = root.winfo_screenwidth()
+            height = root.winfo_screenheight()
+            root.geometry(f"{width}x{height}+0+0")
+            root.overrideredirect(True)
+    
 
 def handle_button(btn: ctk.CTkButton):
     if btn.cget("text") == "VAR":
@@ -97,6 +125,7 @@ def main() -> None:
         config:dict = json.load(f)
     members: list = config["members"]
     member_stats: list = config.get("member_stats",None) # pyright: ignore[reportAssignmentType]
+    global root
     root = ctk.CTk()
     ctk.set_appearance_mode("dark")
     root.title("Yoklama Tablosu")
@@ -130,11 +159,24 @@ def main() -> None:
     clear_all_btn.grid(row=2,column=0,pady=CLEAR_PADY)
     atexit.register(lambda mg = member_guis, m = members: take_save(mg,m))
     load_save(member_stats,members,member_guis)
+    global FULLSCREEN,FULLSCREEN_BUGFIX
+    # root.after(0,lambda: root.attributes("-fullscreen",FULLSCREEN))
+    if not FULLSCREEN_BUGFIX:
+        root.update_idletasks()
+        root.after(50, lambda: root.attributes("-fullscreen", True))
+    else:
+        width = root.winfo_screenwidth()
+        height = root.winfo_screenheight()
+        root.geometry(f"{width}x{height}+0+0")
+        root.overrideredirect(True)
+    root.bind("<F11>",fullscreen_handler)
     root.mainloop()
 
 if __name__ == "__main__":
     try:
         main()
     except Exception as e:
+        import traceback
         print(f"An error occured: {e}")
+        traceback.print_exc()
         input()
