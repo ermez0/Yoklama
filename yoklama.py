@@ -36,11 +36,11 @@ MF_PADY = 200 # Vertical Padding on the table
 
 
 # Alternative Dark Mode Color Scheme
-YOK_FG = "#990822"
-YOK_TXT = "#f74a69"
-VAR_FG = "#0aa629"
-VAR_TXT = "#36e058"
-BG_COLOR = None
+# YOK_FG = "#990822"
+# YOK_TXT = "#f74a69"
+# VAR_FG = "#0aa629"
+# VAR_TXT = "#36e058"
+# BG_COLOR = None
 
 
 
@@ -141,19 +141,22 @@ def main() -> None:
     DEFAULT_MEMBER_STATS = [[""]+ (["YOK"] * 8) for _ in range(len(members))] 
     for col in range(9):
         main_frame.grid_columnconfigure(col, weight=1)
-    for row in range(len(members)):
+    for row in range(1,len(members)+1):
         main_frame.grid_rowconfigure(row, weight=1)
+    for i in range(1,9):
+        ders_label: ctk.CTkLabel = ctk.CTkLabel(main_frame,text=f"{i}. Ders",text_color=MEMBER_COLOR,font=ctk.CTkFont(family=MEMBER_FAMILY,size=MEMBER_SIZE,weight=MEMBER_WEIGHT))
+        ders_label.grid(row=0,column=i)
     for i in range(len(members)):
         member: str = members[i]
         member_guis[i][0] = ctk.CTkLabel(main_frame,text=member,text_color=MEMBER_COLOR,font=ctk.CTkFont(family=MEMBER_FAMILY,size=MEMBER_SIZE,weight=MEMBER_WEIGHT))
         name: ctk.CTkLabel | ctk.CTkButton | None = member_guis[i][0]
         assert isinstance(name,ctk.CTkLabel)
-        name.grid(row=i,column=0)
+        name.grid(row=i+1,column=0)
         for ders in range(1,9):
             btn = ctk.CTkButton(main_frame,text="YOK",fg_color=YOK_FG,text_color=YOK_TXT,font=ctk.CTkFont(family=BTN_FAMILY,size=BTN_PT,weight=BTN_WEIGHT))
             assert isinstance(btn,ctk.CTkButton)
             btn.configure(command=lambda bt=btn:handle_button(bt))
-            btn.grid(row=i,column=ders,sticky="nsew",padx=BTN_PADX,pady=BTN_PADY)
+            btn.grid(row=i+1,column=ders,sticky="nsew",padx=BTN_PADX,pady=BTN_PADY)
             member_guis[i][ders] = btn
     clear_all_btn = ctk.CTkButton(root,text="SIFIRLA",fg_color=YOK_FG,text_color=YOK_TXT,command= lambda mg = member_guis: reset_all(mg),font=ctk.CTkFont(family=BTN_FAMILY,size=BTN_PT,weight=BTN_WEIGHT))
     clear_all_btn.grid(row=2,column=0,pady=CLEAR_PADY)
